@@ -4,6 +4,8 @@
 
 void main() {
     printstr("test\n");
+    printstr((char*)0x30000050);
+    printstr("\n");
 
     // Load key as 114849718896073566083416993308083054187
     *((volatile uint32_t*) 0x30000040) = 1449607251;
