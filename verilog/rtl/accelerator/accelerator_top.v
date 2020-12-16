@@ -135,7 +135,7 @@ always @(1) begin
 	io_oeb[`DINO2_PIX_PIN]  = 0;
 end
 
-/*
+
 wire [3:0] dino1_r;
 wire [3:0] dino1_g;
 wire [3:0] dino1_b;
@@ -209,7 +209,7 @@ dinogame game2 (
     .clk(clk),
     .sys_rst(dino_rst)
 );
-*/
+
 
 endmodule
 `default_nettype wire
