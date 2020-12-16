@@ -28,7 +28,7 @@ SIM?=RTL
 
 .SUFFIXES:
 
-PATTERN = aes128
+PATTERN = aes
 
 all:  ${PATTERN:=.vcd}
 
