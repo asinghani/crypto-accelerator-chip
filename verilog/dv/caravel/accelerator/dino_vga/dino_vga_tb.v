@@ -32,13 +32,15 @@ module dino_vga_tb;
 	initial clock = 0;
 	always #12.5 clock <= (clock === 1'b0);
 
+	wire [40:0] dump = {clock, RSTB, gpio, mprj_io};
 	initial begin
 		$dumpfile("dino_vga.vcd");
-		$dumpvars(0, dino_vga_tb);
+		//$dumpvars(0, dino_vga_tb);
+		$dumpvars(0, dump);
 
 		$display("Start test...");
 
-		repeat (450) begin
+		repeat (200) begin
 			repeat (1000) @(posedge clock);
 		end
 		$display ("Finished running test...");

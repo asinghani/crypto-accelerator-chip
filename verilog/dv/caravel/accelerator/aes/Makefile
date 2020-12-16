@@ -16,6 +16,7 @@
 
 FIRMWARE_PATH = ../..
 RTL_PATH = ../../../../rtl
+VLOG_PATH = ../../../../
 IP_PATH = ../../../../ip
 BEHAVIOURAL_MODELS = ../../ 
 
@@ -43,7 +44,7 @@ ifeq ($(SIM),RTL)
 	$< -o $@
 else
 	iverilog $(spoof_var) -DFUNCTIONAL -DSIM -DGL -I $(BEHAVIOURAL_MODELS) \
-	-I $(PDK_PATH) -I $(IP_PATH) -I $(RTL_PATH) \
+	-I $(PDK_PATH) -I $(IP_PATH) -I $(RTL_PATH) -I $(VLOG_PATH) \
 	$< -o $@
 endif
 

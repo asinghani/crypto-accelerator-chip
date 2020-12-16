@@ -1,3 +1,4 @@
+`default_nettype none
 // SPDX-FileCopyrightText: 2020 Efabless Corporation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,71 +14,84 @@
 // limitations under the License.
 // SPDX-License-Identifier: Apache-2.0
 
-`default_nettype none
-
 `timescale 1 ns / 1 ps
 
 `include "caravel.v"
 `include "spiflash.v"
 
 module aes_tb;
+
 	reg clock;
-	reg RSTB;
-	reg power1, power2;
-	reg power3, power4;
+	reg power1;
+	reg power2;
 
-	wire gpio;
-	wire [37:0] mprj_io;
+	always #10 clock <= (clock === 1'b0);
 
-	initial clock = 0;
-	always #12.5 clock <= (clock === 1'b0);
+	initial begin
+		clock <= 0;
+	end
 
 	initial begin
 		$dumpfile("aes.vcd");
 		$dumpvars(0, aes_tb);
 
-		$display("Start test...");
-
 		repeat (500) begin
 			repeat (1000) @(posedge clock);
+			$display("+1000 cycles");
 		end
 		$display("%c[1;31m",27);
-		$display ("Monitor: Timeout, Test Failed");
+		`ifdef GL
+			$display ("Monitor: Timeout, Test (GL) Failed");
+		`else
+			$display ("Monitor: Timeout, Test (RTL) Failed");
+		`endif
 		$display("%c[0m",27);
 		$finish;
 	end
 
-	initial begin
-		RSTB <= 1'b0;
-		#2000;
-		RSTB <= 1'b1;	    // Release reset
-	end
-
-	initial begin           // Power-up sequence
-		power1 <= 1'b0;
-		power2 <= 1'b0;
-		power3 <= 1'b0;
-		power4 <= 1'b0;
-		#200;
-		power1 <= 1'b1;
-		#200;
-		power2 <= 1'b1;
-		#200;
-		power3 <= 1'b1;
-		#200;
-		power4 <= 1'b1;
-	end
+	wire [37:0] mprj_io;	// Most of these are no-connects
 
 	wire flash_csb;
 	wire flash_clk;
 	wire flash_io0;
 	wire flash_io1;
+	wire gpio;
 
-	wire VDD3V3 = power1;
-	wire VDD1V8 = power2;
-	wire USER_VDD3V3 = power3;
-	wire USER_VDD1V8 = power4;
-	wire VSS = 1'b0;
+	reg RSTB;
+
+	initial begin
+		RSTB <= 1'b0;
+		
+		#1000;
+		RSTB <= 1'b1;	    // Release reset
+		#2000;
+	end
+
+	initial begin			// Power-up
+		power1 <= 1'b0;
+		power2 <= 1'b0;
+		#200;
+		power1 <= 1'b1;
+		#200;
+		power2 <= 1'b1;
+	end
+
+	wire VDD3V3;
+	wire VDD1V8;
+	wire VSS;
+
+	assign VDD3V3 = power1;
+	assign VDD1V8 = power2;
+	assign VSS = 1'b0;
+
+	// Printf I/O
+	always @(posedge gpio) begin
+		$write("%c", mprj_io[7:0]);
+		if (mprj_io[7:0] == 8'h04) begin // End of test
+			$display("FINISHED!");
+			$finish;
+		end
+	end
 
 	caravel uut (
 		.vddio	  (VDD3V3),
@@ -86,12 +100,12 @@ module aes_tb;
 		.vssa	  (VSS),
 		.vccd	  (VDD1V8),
 		.vssd	  (VSS),
-		.vdda1    (USER_VDD3V3),
-		.vdda2    (USER_VDD3V3),
+		.vdda1    (VDD3V3),
+		.vdda2    (VDD3V3),
 		.vssa1	  (VSS),
 		.vssa2	  (VSS),
-		.vccd1	  (USER_VDD1V8),
-		.vccd2	  (USER_VDD1V8),
+		.vccd1	  (VDD1V8),
+		.vccd2	  (VDD1V8),
 		.vssd1	  (VSS),
 		.vssd2	  (VSS),
 		.clock	  (clock),
@@ -114,15 +128,6 @@ module aes_tb;
 		.io2(),			// not used
 		.io3()			// not used
 	);
-
-	// Printf I/O
-	always @(posedge gpio) begin
-		$write("%c", mprj_io[7:0]);
-		if (mprj_io[7:0] == 8'h04) begin // End of test
-			$display("FINISHED!");
-			$finish;
-		end
-	end
 
 endmodule
 `default_nettype wire
