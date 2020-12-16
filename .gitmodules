@@ -1,0 +1,3 @@
+[submodule "crypto-accelerator"]
+	path = crypto-accelerator
+	url = https://github.com/asinghani/crypto-accelerator
