@@ -17,7 +17,7 @@ set ::env(FP_PIN_ORDER_CFG) $script_dir/pin_order.cfg
 
 
 set ::env(SYNTH_MAX_FANOUT) 6
-set ::env(FP_CORE_UTIL) 23
+set ::env(FP_CORE_UTIL) 24
 set ::env(PL_TARGET_DENSITY) [ expr ($::env(FP_CORE_UTIL)+4) / 100.0 ]
 set ::env(CELL_PAD) 4
 
