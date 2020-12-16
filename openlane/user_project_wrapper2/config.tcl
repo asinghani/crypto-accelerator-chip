@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2020 Efabless Corporation
+# SPDX-FileCopyrightText: 2020 Anish Singhani
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,14 +13,8 @@
 # limitations under the License.
 # SPDX-License-Identifier: Apache-2.0
 
-# Base Configurations. Don't Touch
-# section begin
 set script_dir [file dirname [file normalize [info script]]]
 set ::env(DESIGN_NAME) user_project_wrapper
-#section end
-
-
-# User Configurations
 
 ## Source Verilog Files
 set ::env(VERILOG_FILES) "\
