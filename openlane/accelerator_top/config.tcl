@@ -25,10 +25,12 @@ set ::env(CLOCK_NET) "wb_clk_i"
 set ::env(CLOCK_PERIOD) "20"
 
 set ::env(DESIGN_IS_CORE) 0
-#set ::env(FP_PDN_CORE_RING) 0
+set ::env(FP_PDN_CORE_RING) 0
 set ::env(GLB_RT_MAXLAYER) 5
 set ::env(FP_PIN_ORDER_CFG) $script_dir/pin_order.cfg
 
+set ::env(VDD_NETS) [list {vccd1} {vccd2} {vdda1} {vdda2}]
+set ::env(GND_NETS) [list {vssd1} {vssd2} {vssa1} {vssa2}]
 
 set ::env(SYNTH_MAX_FANOUT) 6
 set ::env(FP_CORE_UTIL) 24
@@ -37,12 +39,12 @@ set ::env(CELL_PAD) 4
 
 set ::env(DIODE_INSERTION_STRATEGY) 0
 set ::env(SYNTH_STRATEGY) 2
+set ::env(SYNTH_NO_FLAT) 0
 
 set ::env(ROUTING_CORES) 16
 
-set ::env(SYNTH_NO_FLAT) 0
-
 set ::env(MAGIC_DRC_USE_GDS) 1
+set ::env(LVS_INSERT_POWER_PINS) 1
 
 # MUX4 mapping
 # MUX2 mapping
