@@ -37,7 +37,6 @@ module aes_tb;
 
 		repeat (500) begin
 			repeat (1000) @(posedge clock);
-			$display("+1000 cycles");
 		end
 		$display("%c[1;31m",27);
 		`ifdef GL
