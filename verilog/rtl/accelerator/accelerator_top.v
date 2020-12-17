@@ -114,6 +114,7 @@ always @(1) begin
 	// Default to high-Z (in)
 	io_oeb = {(`MPRJ_IO_PADS){1'b1}}; // 0 = out, 1 = in
 
+	/*
 	io_oeb[`DINO1_JUMP_PIN] = 1;
 	io_oeb[`DINO1_HALT_PIN] = 1;
 	io_oeb[`DINO1_DBG_PIN]  = 1;
@@ -134,6 +135,7 @@ always @(1) begin
 	io_oeb[`DINO1_B1_PIN]   = 0;
 
 	io_oeb[`DINO1_PIX_PIN]  = 0;
+	*/
 
 	io_oeb[`DINO2_JUMP_PIN] = 1;
 	io_oeb[`DINO2_HALT_PIN] = 1;
@@ -143,7 +145,10 @@ always @(1) begin
 	io_oeb[`DINO2_PIX_PIN]  = 0;
 end
 
+wire dino_rst = rst;
 
+
+/*
 wire [3:0] dino1_r;
 wire [3:0] dino1_g;
 wire [3:0] dino1_b;
@@ -157,8 +162,6 @@ assign io_out[`DINO1_G1_PIN] = dino1_g[1];
 assign io_out[`DINO1_B3_PIN] = dino1_b[3];
 assign io_out[`DINO1_B2_PIN] = dino1_b[2];
 assign io_out[`DINO1_B1_PIN] = dino1_b[1];
-
-wire dino_rst = rst;
 
 dinogame game1 (
     .jump_in(io_in[`DINO1_JUMP_PIN]),
@@ -188,6 +191,7 @@ dinogame game1 (
     .clk(clk),
     .sys_rst(dino_rst)
 );
+*/
 
 dinogame game2 (
     .jump_in(io_in[`DINO2_JUMP_PIN]),
