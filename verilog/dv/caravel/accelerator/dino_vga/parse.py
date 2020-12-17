@@ -15,9 +15,13 @@
 from vcdvcd import VCDVCD
 import numpy as np
 import cv2
+import sys
 
-vcd1 = VCDVCD("dino_vga.vcd")
-data = vcd1["dino_vga_tb.dump[40:0]"].tv
+vcd1 = VCDVCD(sys.argv[1])
+print(vcd1.signals)
+
+# gpio_tb.dump[40:02 / dino_vga_tb.dumb[40:0]
+data = vcd1[sys.argv[2]].tv
 data = [x[1].zfill(41)[::-1] for x in data]
 data = [x for x in data if x[40] == "1"]
 
