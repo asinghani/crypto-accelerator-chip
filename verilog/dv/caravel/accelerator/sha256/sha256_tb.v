@@ -19,7 +19,7 @@
 `include "caravel.v"
 `include "spiflash.v"
 
-module aes_tb;
+module sha256_tb;
 
 	reg clock;
 	reg power1;
@@ -34,8 +34,8 @@ module aes_tb;
 	end
 
 	initial begin
-		$dumpfile("aes.vcd");
-		$dumpvars(0, aes_tb);
+		$dumpfile("sha256.vcd");
+		$dumpvars(0, sha256_tb);
 
 		repeat (500) begin
 			repeat (1000) @(posedge clock);
@@ -121,7 +121,7 @@ module aes_tb;
 	);
 
 	spiflash #(
-		.FILENAME("aes.hex")
+		.FILENAME("sha256.hex")
 	) spiflash (
 		.csb(flash_csb),
 		.clk(flash_clk),
