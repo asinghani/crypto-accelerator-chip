@@ -37,7 +37,7 @@ module sha256_tb;
 		$dumpfile("sha256.vcd");
 		$dumpvars(0, sha256_tb);
 
-		repeat (500) begin
+		repeat (400) begin
 			repeat (1000) @(posedge clock);
 		end
 		$display("%c[1;31m",27);
@@ -86,10 +86,10 @@ module sha256_tb;
 
 	// Printf I/O
 	always @(posedge gpio) begin
-		CSB <= 1'b0;		// CSB can be released
+		CSB = 1'b0;		// CSB can be released
 		#1
-		$write("%c", mprj_io[7:0]);
-		if (mprj_io[7:0] == 8'h04) begin // End of test
+		$write("%c", mprj_io[15:8]);
+		if (mprj_io[15:8] == 8'h04) begin // End of test
 			$display("FINISHED!");
 			$finish;
 		end

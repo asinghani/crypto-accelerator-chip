@@ -98,6 +98,8 @@ void runTest(uint32_t key0, uint32_t key1, uint32_t key2, uint32_t key3,
 }
 
 void main() {
+    reg_spimaster_config = 0xA002; // Allow use of pin3
+
     printstr("test\n");
 
     bool verbose = 0;

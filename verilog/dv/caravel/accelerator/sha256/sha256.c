@@ -17,27 +17,48 @@
 #include "printio.h"
 
 void main() {
+    reg_spimaster_config = 0xA002; // Allow use of pin3
+    reg_mprj_xfer = 1;
+    while (reg_mprj_xfer == 1);
+
     printstr("test\n");
 
     bool verbose = 0;
 
-    printstr((char*)0x30010050);
-    printstr("\n");
-
-    static uint32_t test_in1[] = {
-        0x68656C6C, 0x6F800000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000028
-    };
-    unsigned int test_in1size = sizeof(test_in1) / sizeof(test_in1[0]);
+    unsigned int test_in1size = 16;
 	printhex(test_in1size, true);
 
     *((volatile uint32_t*)0x30010000) = 0x1;
+    *((volatile uint32_t*)0x30010004) =  0x68656C6C;
+    *((volatile uint32_t*)0x30010004) =  0x6F800000;
+    *((volatile uint32_t*)0x30010004) =  0x00000000;
+    *((volatile uint32_t*)0x30010004) =  0x00000000;
+    *((volatile uint32_t*)0x30010004) =  0x00000000;
+    *((volatile uint32_t*)0x30010004) =  0x00000000;
+    *((volatile uint32_t*)0x30010004) =  0x00000000;
+    *((volatile uint32_t*)0x30010004) =  0x00000000;
+    printstr("1\n");
 
-    for (unsigned int i = 0; i < test_in1size; i++) {
-        *((volatile uint32_t*)0x30010004) = test_in1[i];
-        printhex(i, true);
-    }
+    *((volatile uint32_t*)0x30010004) =  0x00000000;
+    *((volatile uint32_t*)0x30010004) =  0x00000000;
+    *((volatile uint32_t*)0x30010004) =  0x00000000;
+    *((volatile uint32_t*)0x30010004) =  0x00000000;
+    *((volatile uint32_t*)0x30010004) =  0x00000000;
+    *((volatile uint32_t*)0x30010004) =  0x00000000;
+    *((volatile uint32_t*)0x30010004) =  0x00000000;
+    *((volatile uint32_t*)0x30010004) =  0x00000028;
+    printstr("2\n");
     while ((*((volatile uint32_t*)0x30010000) & 0x4) != 0x4);
 
+
+    // 0x2CF24DBA
+    // 0x5FB0A30E
+    // 0x26E83B2A
+    // 0xC5B9E29E
+    // 0x1B161E5C
+    // 0x1FA7425E
+    // 0x73043362
+    // 0x938B9824
     printhex(*((volatile uint32_t*)0x30010010), true);
     printhex(*((volatile uint32_t*)0x30010014), true);
     printhex(*((volatile uint32_t*)0x30010018), true);
@@ -46,6 +67,9 @@ void main() {
     printhex(*((volatile uint32_t*)0x30010024), true);
     printhex(*((volatile uint32_t*)0x30010028), true);
     printhex(*((volatile uint32_t*)0x3001002C), true);
+
+    printstr((char*)0x30010050);
+    printstr("\n");
 
     endtest();
 }

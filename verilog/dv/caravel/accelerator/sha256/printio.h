@@ -13,7 +13,7 @@
 // limitations under the License.
 // SPDX-License-Identifier: Apache-2.0
 void shift_char(char c) {
-    *((volatile char*)&reg_mprj_datal) = c;
+    *((volatile uint16_t*)(&reg_mprj_datal)) = (c << 8) | (*((volatile uint16_t*)(&reg_mprj_datal)) & 0xFF);
 
     reg_gpio_ena = 0;
     reg_gpio_data = 1;
@@ -23,55 +23,55 @@ void shift_char(char c) {
 }
 
 void setup_out() {
-    reg_mprj_io_7  = GPIO_MODE_MGMT_STD_OUTPUT;
-    reg_mprj_io_6  = GPIO_MODE_MGMT_STD_OUTPUT;
-    reg_mprj_io_5  = GPIO_MODE_MGMT_STD_OUTPUT;
-    reg_mprj_io_4  = GPIO_MODE_MGMT_STD_OUTPUT;
-    reg_mprj_io_3  = GPIO_MODE_MGMT_STD_OUTPUT;
-    reg_mprj_io_2  = GPIO_MODE_MGMT_STD_OUTPUT;
-    reg_mprj_io_1  = GPIO_MODE_MGMT_STD_OUTPUT;
-    reg_mprj_io_0  = GPIO_MODE_MGMT_STD_OUTPUT;
+    reg_mprj_io_15 = GPIO_MODE_MGMT_STD_OUTPUT;
+    reg_mprj_io_14 = GPIO_MODE_MGMT_STD_OUTPUT;
+    reg_mprj_io_13 = GPIO_MODE_MGMT_STD_OUTPUT;
+    reg_mprj_io_12 = GPIO_MODE_MGMT_STD_OUTPUT;
+    reg_mprj_io_11 = GPIO_MODE_MGMT_STD_OUTPUT;
+    reg_mprj_io_10 = GPIO_MODE_MGMT_STD_OUTPUT;
+    reg_mprj_io_9  = GPIO_MODE_MGMT_STD_OUTPUT;
+    reg_mprj_io_8  = GPIO_MODE_MGMT_STD_OUTPUT;
 
     reg_mprj_xfer = 1;
     while (reg_mprj_xfer == 1);
 }
 
 void write_char(char c) {
-    uint32_t tmp7 = reg_mprj_io_7;
-    uint32_t tmp6 = reg_mprj_io_6;
-    uint32_t tmp5 = reg_mprj_io_5;
-    uint32_t tmp4 = reg_mprj_io_4;
-    uint32_t tmp3 = reg_mprj_io_3;
-    uint32_t tmp2 = reg_mprj_io_2;
-    uint32_t tmp1 = reg_mprj_io_1;
-    uint32_t tmp0 = reg_mprj_io_0;
+    uint32_t tmp7 = reg_mprj_io_15;
+    uint32_t tmp6 = reg_mprj_io_14;
+    uint32_t tmp5 = reg_mprj_io_13;
+    uint32_t tmp4 = reg_mprj_io_12;
+    uint32_t tmp3 = reg_mprj_io_11;
+    uint32_t tmp2 = reg_mprj_io_10;
+    uint32_t tmp1 = reg_mprj_io_9;
+    uint32_t tmp0 = reg_mprj_io_8;
 
     setup_out();
 
     shift_char(c);
 
-    reg_mprj_io_7 = tmp7;
-    reg_mprj_io_6 = tmp6;
-    reg_mprj_io_5 = tmp5;
-    reg_mprj_io_4 = tmp4;
-    reg_mprj_io_3 = tmp3;
-    reg_mprj_io_2 = tmp2;
-    reg_mprj_io_1 = tmp1;
-    reg_mprj_io_0 = tmp0;
+    reg_mprj_io_15 = tmp7;
+    reg_mprj_io_14 = tmp6;
+    reg_mprj_io_13 = tmp5;
+    reg_mprj_io_12 = tmp4;
+    reg_mprj_io_11 = tmp3;
+    reg_mprj_io_10 = tmp2;
+    reg_mprj_io_9  = tmp1;
+    reg_mprj_io_8  = tmp0;
 
     reg_mprj_xfer = 1;
     while (reg_mprj_xfer == 1);
 }
 
 void printhex(uint32_t x, bool newline) {
-    uint32_t tmp7 = reg_mprj_io_7;
-    uint32_t tmp6 = reg_mprj_io_6;
-    uint32_t tmp5 = reg_mprj_io_5;
-    uint32_t tmp4 = reg_mprj_io_4;
-    uint32_t tmp3 = reg_mprj_io_3;
-    uint32_t tmp2 = reg_mprj_io_2;
-    uint32_t tmp1 = reg_mprj_io_1;
-    uint32_t tmp0 = reg_mprj_io_0;
+    uint32_t tmp7 = reg_mprj_io_15;
+    uint32_t tmp6 = reg_mprj_io_14;
+    uint32_t tmp5 = reg_mprj_io_13;
+    uint32_t tmp4 = reg_mprj_io_12;
+    uint32_t tmp3 = reg_mprj_io_11;
+    uint32_t tmp2 = reg_mprj_io_10;
+    uint32_t tmp1 = reg_mprj_io_9;
+    uint32_t tmp0 = reg_mprj_io_8;
 
     setup_out();
 
@@ -83,42 +83,42 @@ void printhex(uint32_t x, bool newline) {
     }
     if(newline) shift_char('\n');
 
-    reg_mprj_io_7 = tmp7;
-    reg_mprj_io_6 = tmp6;
-    reg_mprj_io_5 = tmp5;
-    reg_mprj_io_4 = tmp4;
-    reg_mprj_io_3 = tmp3;
-    reg_mprj_io_2 = tmp2;
-    reg_mprj_io_1 = tmp1;
-    reg_mprj_io_0 = tmp0;
+    reg_mprj_io_15 = tmp7;
+    reg_mprj_io_14 = tmp6;
+    reg_mprj_io_13 = tmp5;
+    reg_mprj_io_12 = tmp4;
+    reg_mprj_io_11 = tmp3;
+    reg_mprj_io_10 = tmp2;
+    reg_mprj_io_9  = tmp1;
+    reg_mprj_io_8  = tmp0;
 
     reg_mprj_xfer = 1;
     while (reg_mprj_xfer == 1);
 }
 
 void printstr(char *str) {
-    uint32_t tmp7 = reg_mprj_io_7;
-    uint32_t tmp6 = reg_mprj_io_6;
-    uint32_t tmp5 = reg_mprj_io_5;
-    uint32_t tmp4 = reg_mprj_io_4;
-    uint32_t tmp3 = reg_mprj_io_3;
-    uint32_t tmp2 = reg_mprj_io_2;
-    uint32_t tmp1 = reg_mprj_io_1;
-    uint32_t tmp0 = reg_mprj_io_0;
+    uint32_t tmp7 = reg_mprj_io_15;
+    uint32_t tmp6 = reg_mprj_io_14;
+    uint32_t tmp5 = reg_mprj_io_13;
+    uint32_t tmp4 = reg_mprj_io_12;
+    uint32_t tmp3 = reg_mprj_io_11;
+    uint32_t tmp2 = reg_mprj_io_10;
+    uint32_t tmp1 = reg_mprj_io_9;
+    uint32_t tmp0 = reg_mprj_io_8;
 
     setup_out();
 
     char c;
     while (*str) shift_char(*str++);
 
-    reg_mprj_io_7 = tmp7;
-    reg_mprj_io_6 = tmp6;
-    reg_mprj_io_5 = tmp5;
-    reg_mprj_io_4 = tmp4;
-    reg_mprj_io_3 = tmp3;
-    reg_mprj_io_2 = tmp2;
-    reg_mprj_io_1 = tmp1;
-    reg_mprj_io_0 = tmp0;
+    reg_mprj_io_15 = tmp7;
+    reg_mprj_io_14 = tmp6;
+    reg_mprj_io_13 = tmp5;
+    reg_mprj_io_12 = tmp4;
+    reg_mprj_io_11 = tmp3;
+    reg_mprj_io_10 = tmp2;
+    reg_mprj_io_9  = tmp1;
+    reg_mprj_io_8  = tmp0;
 
     reg_mprj_xfer = 1;
     while (reg_mprj_xfer == 1);
