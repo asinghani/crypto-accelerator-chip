@@ -20,7 +20,7 @@ import sys
 vcd1 = VCDVCD(sys.argv[1])
 print(vcd1.signals)
 
-# gpio_tb.dump[40:02 / dino_vga_tb.dumb[40:0]
+# dino_vga_tb.dump[40:0]
 data = vcd1[sys.argv[2]].tv
 data = [x[1].zfill(41)[::-1] for x in data]
 data = [x for x in data if x[40] == "1"]
@@ -29,7 +29,20 @@ data = [x for x in data if "z" not in x[30:33] and "x" not in x[30:33]]
 
 # Parse to [(hs, vs, r, g, b), ...]
 data = [(x[31], x[30], x[32], x[32], x[32]) for x in data]
-data = [list(map(int, x)) for x in data]
+
+def int4(x):
+    if x == "0":
+        return 0.0
+    elif x == "1":
+        return 1.0
+    elif x.lower() == "x":
+        return 0.3
+    elif x.lower() == "z":
+        return 0.6
+    else:
+        assert False
+
+data = [list(map(int4, x)) for x in data]
 data_parsed = data
 
 print(len(data_parsed))
@@ -52,7 +65,10 @@ for hs, vs, r, g, b in data_parsed:
     if hs and ready and line is not None:
         line.append((b, g, r))
 
-img = np.array(img, dtype=np.uint8) * 255
+print(len(img), [len(x) for x in img])
+img = [a[:705] for a in img]
+
+img = (np.array(img, dtype=np.float32) * 255).astype(np.uint8)
 print("Image shape: {}".format(img.shape))
 cv2.imwrite("frame.png", img)
 

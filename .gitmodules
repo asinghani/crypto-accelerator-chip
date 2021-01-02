@@ -1,3 +1,6 @@
 [submodule "crypto-accelerator"]
 	path = crypto-accelerator
 	url = https://github.com/asinghani/crypto-accelerator
+[submodule "vis/sky130-chip-vis"]
+	path = vis/sky130-chip-vis
+	url = https://github.com/asinghani/sky130-chip-vis

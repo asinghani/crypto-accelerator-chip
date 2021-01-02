@@ -37,16 +37,17 @@ module sha256_tb;
 		$dumpfile("sha256.vcd");
 		$dumpvars(0, sha256_tb);
 
-		repeat (400) begin
+		`ifdef GL
+			$display("Res: Starting SHA256 (GL) test");
+		`else
+			$display("Res: Starting SHA256 (RTL) test");
+		`endif
+
+		repeat (800) begin
 			repeat (1000) @(posedge clock);
 		end
-		$display("%c[1;31m",27);
-		`ifdef GL
-			$display ("Monitor: Timeout, Test (GL) Failed");
-		`else
-			$display ("Monitor: Timeout, Test (RTL) Failed");
-		`endif
-		$display("%c[0m",27);
+
+		$display ("Res: Timeout, SHA256 test FAILED");
 		$finish;
 	end
 
@@ -90,7 +91,7 @@ module sha256_tb;
 		#1
 		$write("%c", mprj_io[15:8]);
 		if (mprj_io[15:8] == 8'h04) begin // End of test
-			$display("FINISHED!");
+			$display("Res: SHA256 test completed! (see results above)");
 			$finish;
 		end
 	end

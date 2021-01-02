@@ -44,8 +44,6 @@ void main() {
 
     reg_mprj_xfer = 1;
     while (reg_mprj_xfer == 1);
-
-    printstr("Ready\n");
 }
 
 

@@ -17,143 +17,173 @@
 -->
 # Crypto Accelerator Chip
 
-**Caravel builds at [asinghani/crypto-accelerator-builds](https://github.com/asinghani/crypto-accelerator-builds)**
+This is a cryptography accelerator ASIC designed using the SKY130 (130nm) process node, to be taped out on the Google/Skywater/efabless open-source MPW shuttle. It includes hardware implementations of cores for AES128/AES256 and SHA256, as well as an experimental VGA-based game demo (it also includes the "caravel" debug-harness/padframe which is being used in this tapeout). The eventual goal of this project is to use it for embedded/IoT security applications.
 
-Build configs and RTL at [asinghani/crypto-accelerator-chip](https://github.com/asinghani/crypto-accelerator-chip)
+## Project Structure
 
-Accelerator RTL is at [asinghani/crypto-accelerator](https://github.com/asinghani/crypto-accelerator)
+This repository ([asinghani/crypto-accelerator-chip](https://github.com/asinghani/crypto-accelerator-chip)) is the main project repository, containing the build configs, RTL, and testbenches for the design.
 
-AES128 accelerator on SKY130 process node.
+The openlane-based build environment (including the final tapeout-ready GDS files) is at [asinghani/crypto-accelerator-builds](https://github.com/asinghani/crypto-accelerator-builds). The build environment repository contains the project repository (this repository) as a submodule and uses symbolic links to form the directory structure (this is done to keep the main repository cleaner, as the build repository is quite unwieldy to manipulate due to its size). The build products must be stored inside the repo in order to use it with the efabless Open MPW platform, which pulls the build products directly from the git repository.
 
-Accelerator accessible over wishbone bus from RISC-V SoC.
-
-
+The accelerator itself (which is designed to be usable on both FPGA and ASIC) is designed in Chisel3 and is at [asinghani/crypto-accelerator](https://github.com/asinghani/crypto-accelerator) (it is also submoduled into this repository to make builds easier).
 
 
-# Original Caravel documentation:
+## Table of Contents
 
-A template SoC for Google SKY130 free shuttles. It is still WIP. The current SoC architecture is given below.
+- [Architecture](#architecture)
+- [Gate-Level Visualizations](#gate-level-visualizations)
+    - [Chip Overview](#chip-overview)
+    - [AES128 Encrypt/Decrypt](#aes128-encryptdecrypt)
+    - [AES256 Encrypt/Decrypt](#aes256-encryptdecrypt)
+    - [SHA256 Hashing](#sha256-hashing)
+- [Build Instructions](#build-instructions)
+    - [Dependencies](#dependencies)
+    - [Download and Extract](#download-and-extract)
+    - [Running Design Tests](#running-design-tests)
+    - [Full Accelerator Build](#full-accelerator-build)
+- [Directory Structure](#directory-structure)
 
-<p align="center">
-<img src="/doc/ciic_harness.png" width="75%" height="75%"> 
-</p>
+## Architecture
 
+This chip contains 4 major components:
 
-## Getting Started:
+1. AES128/256 Accelerator
+    - Optimized for balance between speed and area, can encrypt or decrypt a 16-byte block in ~20 cycles for AES128 or ~28 cycles for AES256
+    - Supports both ECB and CBC modes (CBC is recommended because it is much more secure against certain types of attacks) with no performance penalty for using CBC
 
-* For information on tooling and versioning, please refer to [this][1].
+2. SHA256 Accelerator
+    - Can hash a single 512-bit block in ~66 cycles (and is able to process multiple blocks immediately back-to-back, i.e. when hashing a large file)
 
-Start by cloning the repo and uncompressing the files.
-```bash
-git clone https://github.com/efabless/caravel.git
-cd caravel
+3. VGA Game Demo (experimental)
+    - Original design was contributed by [Ethan Polcyn](https://github.com/ethanleep) (and then ported to run on the ASIC environment)
+    - Consists of a small infinite side-scrolling jumping game (based on the Chromium Browser's "No internet"-game), playable using button input from one of the chip's I/O pins
+    - Renders VGA video output at 640x480 through the chip's output pins
+
+<img src="https://raw.githubusercontent.com/asinghani/crypto-accelerator-chip/main/doc/dino.png" width="600pt" />
+
+4. Caravel harness/padframe
+    - Required as part of Open MPW tapeout - contains a picorv32 CPU (which is used to interface with the rest of the cores through the Wishbone bus) and the padframe
+    - See [efabless/caravel](https://github.com/efabless/caravel) for details. 
+
+## Gate-Level Visualizations
+
+### Chip Overview
+
+<img src="https://raw.githubusercontent.com/asinghani/crypto-accelerator-chip/main/doc/chip.png" />
+
+### AES128 Encrypt/Decrypt
+
+<img src="https://raw.githubusercontent.com/asinghani/crypto-accelerator-chip/main/vis/out_compressed/aes128_tb/vis_3.gif" width="400pt" />
+
+### AES256 Encrypt/Decrypt
+
+<img src="https://raw.githubusercontent.com/asinghani/crypto-accelerator-chip/main/vis/out_compressed/aes256_tb/vis_3.gif" width="400pt" />
+
+### SHA256 Hashing
+
+<img src="https://raw.githubusercontent.com/asinghani/crypto-accelerator-chip/main/vis/out_compressed/sha256_tb/vis_3.gif" width="400pt" />
+
+## Build Instructions
+
+### Dependencies
+
+- Python 3
+- Icarus Verilog (for simulations)
+- [OpenLANE](https://github.com/efabless/openlane) rc6
+- [Magic VLSI Layout Tool](http://opencircuitdesign.com/magic/index.html) (>= 8.3.60)
+- (Optional) Scala & SBT (only needed to regenerate the full build from the Chisel3 sources - otherwise can just use the prebuilt `crypto_accelerator.v` file that is already in the repository)
+
+### Download and Extract
+
+```sh
+# Clone repo (and submodules)
+git clone --recurse-submodules https://github.com/asinghani/crypto-accelerator-builds
+
+# Uncompress the gzipped build products and harness files
 make uncompress
 ```
 
-Then you need to install the open_pdks prerequisite:
- - [Magic VLSI Layout Tool](http://opencircuitdesign.com/magic/index.html) is needed to run open_pdks -- version >= 8.3.60*
+### Running Design Tests
 
- > \* Note: You can avoid the need for the magic prerequisite by using the openlane docker to do the installation step in open_pdks. This could be done by cloning [openlane](https://github.com/efabless/openlane/tree/master) and running this [script](https://github.com/efabless/openlane/blob/master/travisCI/travisBuild.sh) in the openlane root directrory.
+To run the tests (both RTL-level and gate-level):
 
-Install the required version of the PDK by running the following commands:
+```sh
+cd verilog/dv/caravel/accelerator/
 
-```bash
-export PDK_ROOT=<The place where you want to install the pdk>
-make pdk
+# To run a specific test case:
+cd <aes / dino_vga / sha256>
+make SIM=RTL SPOOF_FAST_FLASH=1 # for accelerated RTL test
+make SIM=RTL # for normal RTL test
+make SIM=GL # for gate-level test
+
+# To run all AES and SHA test cases (from inside `accelerator` directory):
+make rtl # RTL tests
+make gl # gate-level tests
 ```
 
-Then, you can learn more about the caravel chip by watching these video:
-- Caravel User Project Features -- https://youtu.be/zJhnmilXGPo
-- Aboard Caravel -- How to put your design on Caravel? -- https://youtu.be/9QV8SDelURk
-- Things to Clarify About Caravel -- What versions to use with Caravel? -- https://youtu.be/-LZ522mxXMw
-    - You could only use openlane:rc5
-    - Make sure you have the commit hashes provided here inside the [Makefile](./Makefile)
-## Aboard Caravel:
+The `aes` and `sha256` testbenches are self-checking, and will print failure messages if there are any issues. There are additional verification steps in the Chisel3 testbenches (in the `crypto-accelerator` repo), including several hundred more test cases.
 
-Your area is the full user_project_wrapper, so feel free to add your project there or create a differnt macro and harden it seperately then insert it into the user_project_wrapper. For example, if your design is analog or you're using a different tool other than OpenLANE.
+The `dino_vga` test is special because it cannot be automatically verified. Instead, there is a python script in the `dino_vga` directory (named `parse.py`, with `numpy`, `vcdvcd`, and `opencv-python` modules as dependencies) which can be invoked (from inside the `dino_vga` directory) as `python3 parse.py dino_vga.vcd "dino_vga_tb.dump[40:0]"` to parse the VCD and generate a PNG file `frame.png` containing the VGA frame outputted by the design (which can be visually inspected for correctness).
 
-If you will use OpenLANE to harden your design, go through the instructions in this [README.md][0].
+### Full Accelerator Build
 
-You must copy your synthesized gate-level-netlist for `user_project_wrapper` to `verilog/gl/` and overwrite `user_project_wrapper.v`. Otherwise, you can point to it in [info.yaml](info.yaml).
+(Expects that the download procedure has been completed, including the uncompress stage)
 
-> Note: If you're using openlane to harden your design, you should find the synthesized gate-level-netlist here: `openlane/user_project_wrapper/runs/user_project_wrapper/results/synthesis/user_project_wrapper.synthesis.v`.
+```sh
+# Optional (only if need to re-generate crypto_accelerator.v from Chisel3 sources)
+cd crypto-accelerator-chip && ./update-verilog.sh && cd ..
 
-Then, you will need to put your design aboard the Caravel chip. Make sure you have the following:
+# Build top-level accelerator
+cd openlane && make accelerator_top && cd ..
+ls openlane/accelerator_top/runs/ # Find the most recent run name
 
-- [Magic VLSI Layout Tool](http://opencircuitdesign.com/magic/index.html) installed on your machine. We may provide a Dockerized version later.\*
-- You have your user_project_wrapper.gds under `./gds/` in the Caravel directory.
+# Move the netlists & build files
+./migrate-accel-gds.sh <path to run including openlane/accelerator_top/runs/>
+./migrate-gl.sh <path to run including openlane/accelerator_top/runs/>
 
- > \* **Note:** You can avoid the need for the magic prerequisite by using the openlane docker to run the make step. This [section](#running-make-using-openlane-magic) shows how.
+# Build the "user project wrapper" which fits the accelerator into the caravel padframe
+cd openlane && make user_project_wrapper && cd ..
 
-Run the following command:
+# Re-run the netlist migration since it includes user_project_wrapper as well
+./migrate-gl.sh <path to run including openlane/accelerator_top/runs/>
 
-```bash
-export PDK_ROOT=<The place where the installed pdk resides. The same PDK_ROOT used in the pdk installation step>
-make
+# Add user_project_wrapper into caravel padframe
+make ship
+
+# At this point, the top-level GDS (caravel + accelerator) is generated in `gds/caravel.gds`
+
+# Optionally, to render the caravel to an image using KLayout
+./render.sh # May need to run with XVFB if in a headless environment
 ```
 
-This should merge the GDSes using magic and you'll end up with your version of `./gds/caravel.gds`. You should expect ~100 magic DRC violations with the current "development" state of caravel.
+## Directory Structure
 
-## Running Make using OpenLANE Magic
-
-To use the magic installed inside Openlane to complete the final GDS streaming out step, export the following:
-
-```bash
-export PDK_ROOT=<The location where the pdk is installed>
-export OPENLANE_ROOT=<the absolute path to the openlane directory cloned or to be cloned>
-export IMAGE_NAME=<the openlane image name installed on your machine. Preferably openlane:rc5>
-export CARAVEL_PATH=$(pwd)
+The relevant files in this repository are as follows:
 ```
+crypto-accelerator - Submodule which contains the Chisel3 design for the crypto accelerator
+doc - Images / diagrams
+openlane
+├─accelerator_top - Configuration for building the main accelerator block
+└─user_project_wrapper - Configuration for building the "wrapper" block which is used to fit the accelerator into the harness
 
-Then, mount the docker:
+update-verilog.sh - Script to re-generate crypto_accelerator.v from the Chisel3 sources in the crypto-accelerator submodule
+verilog
+├─dv
+│ └─caravel
+│   └─accelerator
+│     ├─aes - Test cases for the AES128/256 core
+│     ├─dino_vga - Simulation for the VGA game demo (must be verified visually)
+│     ├─Makefile - Runs all simulations
+│     └─sha256 - Test cases for the SHA256 core
+│
+└─rtl
+  ├─accelerator
+  │ ├─accelerator_top.v - Top-level design, instantiates and connects all the relevant modules
+  │ ├─crypto_accelerator.v - Crypto accelerator verilog (auto-generated from Chisel3 RTL design)
+  │ └─dino - Directory which contains all the sources for the VGA game demo
+  │
+  │
+  └─user_project_wrapper.v - Instantiation of the accelerator core (exposing relevant ports to caravel)
 
-```bash
-docker run -it -v $CARAVEL_PATH:$CARAVEL_PATH -v $OPENLANE_ROOT:/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e CARAVEL_PATH=$CARAVEL_PATH -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) $IMAGE_NAME
+vis - Scripts & testbenches for generating gate-level visualization diagrams of the chip
 ```
-
-Finally, once inside the docker run the following commands:
-```bash
-cd $CARAVEL_PATH
-make
-exit
-```
-
-This should merge the GDSes using magic and you'll end up with your version of `./gds/caravel.gds`. You should expect ~100 magic DRC violations with the current "development" state of caravel.
-
-## Required Directory Structure
-
-- ./gds/ : includes all the gds files used or produced from the project.
-- ./def/ : includes all the def files used or produced from the project.
-- ./lef/ : includes all the lef files used or produced from the project.
-- ./mag/ : includes all the mag files used or produced from the project.
-- ./maglef/ : includes all the maglef files used or produced from the project.
-- ./spi/lvs/ : includes all the maglef files used or produced from the project.
-- ./verilog/dv/ : includes all the simulation test benches and how to run them. 
-- ./verilog/gl/ : includes all the synthesized/elaborated netlists. 
-- ./verilog/rtl/ : includes all the Verilog RTLs and source files.
-- ./openlane/`<macro>`/ : includes all configuration files used to run openlane on your project.
-- info.yaml: includes all the info required in [this example](info.yaml). Please make sure that you are pointing to an elaborated caravel netlist as well as a synthesized gate-level-netlist for the user_project_wrapper
-
-## Managment SoC
-The managment SoC runs firmware that can be used to:
-- Configure User Project I/O pads
-- Observe and control User Project signals (through on-chip logic analyzer probes)
-- Control the User Project power supply
-
-The memory map of the management SoC can be found [here](verilog/rtl/README)
-
-## User Project Area
-This is the user space. It has limited silicon area (TBD, about 3.1mm x 3.8mm) as well as a fixed number of I/O pads (37) and power pads (10).  See [the Caravel  premliminary datasheet](doc/caravel_datasheet.pdf) for details.
-The repository contains a [sample user project](/verilog/rtl/user_proj_example.v) that contains a binary 32-bit up counter.  </br>
-
-<p align="center">
-<img src="/doc/counter_32.png" width="50%" height="50%">
-</p>
-
-The firmware running on the Management Area SoC, configures the I/O pads used by the counter and uses the logic probes to observe/control the counter. Three firmware examples are provided:
-1. Configure the User Project I/O pads as o/p. Observe the counter value in the testbench: [IO_Ports Test](verilog/dv/caravel/user_proj_example/io_ports).
-2. Configure the User Project I/O pads as o/p. Use the Chip LA to load the counter and observe the o/p till it reaches 500: [LA_Test1](verilog/dv/caravel/user_proj_example/la_test1).
-3. Configure the User Project I/O pads as o/p. Use the Chip LA to control the clock source and reset signals and observe the counter value for five clock cylcles:  [LA_Test2](verilog/dv/caravel/user_proj_example/la_test2).
-
-[0]: openlane/README.md
-[1]: mpw-one-a.md

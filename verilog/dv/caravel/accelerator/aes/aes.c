@@ -81,9 +81,9 @@ void runTest(uint32_t key0, uint32_t key1, uint32_t key2, uint32_t key3,
         *((volatile uint32_t*) 0x30000034) == out1 &&
         *((volatile uint32_t*) 0x30000038) == out2 &&
         *((volatile uint32_t*) 0x3000003C) == out3) {
-        printstr("PASS\n");
+        printstr("Res: PASS\n");
     } else {
-        printstr("FAIL\n");
+        printstr("Res: FAIL\n");
         verbose = 1;
     }
 
@@ -100,7 +100,7 @@ void runTest(uint32_t key0, uint32_t key1, uint32_t key2, uint32_t key3,
 void main() {
     reg_spimaster_config = 0xA002; // Allow use of pin3
 
-    printstr("test\n");
+    printstr("aes\n");
 
     bool verbose = 0;
 
@@ -154,11 +154,9 @@ void main() {
             691155065, 845884219, 1382968177, 1333362273,
             verbose, 0, 0);
 
-
-
+    printstr("Res: ");
     printstr((char*)0x30000050);
     printstr("\n");
-
 
     endtest();
 }
